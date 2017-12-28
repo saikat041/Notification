@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>try</title>
+    <link rel="manifest" href="./manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <script>
+    var config = {
+      apiKey: "AIzaSyADV8acVN_XHD8feh3N6xGORW40xafiI0s",
+      authDomain: "notification-b609d.firebaseapp.com",
+      databaseURL: "https://notification-b609d.firebaseio.com",
+      projectId: "notification-b609d",
+      storageBucket: "notification-b609d.appspot.com",
+      messagingSenderId: "759224230234"
+    };
+    firebase.initializeApp(config);
+  </script>
+
+  </head>
+  <body>
+    <div class="invisible" id="welcomeBox">
+      <h1>You are Welcome</h1>
+      <button type="submit" class="btn btn-primary btn-block btn-large" id="logout" onclick="logout()">LOG OUT</button>
+    </div>
+  <div id="loginBox" class="invisible">
+    <h1>Login</h1>
+    <input type="text" id="email" placeholder="email">
+    <br>
+    <input type="password" id="password" placeholder="password">
+    <button type="submit" class="btn btn-primary btn-block btn-large" id="signin" onclick="signin()">SIGN IN</button>
+    <button type="submit" class="btn btn-primary btn-block btn-large" id="signup" onclick="signup()">SIGN UP</button>
+  </div>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+                                                  <!-- SCRIPT -->
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+const messaging = firebase.messaging();
+const mAuth=firebase.auth();
+const db = firebase.firestore();
+
+messaging.onMessage(function(payload) {
+  console.log("Message received. ", payload);
+});
+
+function signin() {
+document.getElementById('loginBox').classList.add('invisible');
+var email=document.getElementById('email').value;
+var password=document.getElementById('password').value;
+console.log(email+password);
+firebase.auth().signInWithEmailAndPassword(email, password)
+.then(function () {
+})
+.catch(function(error) {
+document.getElementById('loginBox').classList.remove('invisible');
+alert("error signing in");
+});
+}
+
+mAuth.onAuthStateChanged(function (user) {
+  if(user)
+  {
+    document.getElementById('loginBox').classList.add('invisible');
+    document.getElementById('welcomeBox').classList.remove('invisible');
+    messaging.requestPermission()
+    .then(function() {
+      console.log('Notification permission granted.');
+      return messaging.getToken();
+    }
+    )
+    .then(function (token) {
+      if(token){
+        console.log(token);
+        db.collection(user.email).doc('token').set({"token":token}).then(function () {
+        })
+        .catch(function () {
+          console.log("error writing data..");
+        });
+      }else{
+        console.log("token not found..");
+      }
+    })
+    .catch(function(err) {
+      alert("permission not granted....");
+    });
+  }else{
+    document.getElementById('welcomeBox').classList.add('invisible');
+    document.getElementById('loginBox').classList.remove('invisible');
+  }
+});
+
+function logout(){
+  mAuth.signOut();
+}
+function signup() {
+var email=document.getElementById('email').value;
+var password=document.getElementById('password').value;
+firebase.auth().createUserWithEmailAndPassword(email,password).then(function functionName() {
+  console.log("user created sucessfuly");
+})
+.catch(function functionName() {
+  alert("error in creating user");
+})
+}
+</script>
+
+
+
+
+
+                                                  <!-- STYLE -->
+
+
+
+
+
+
+
+<style media="screen">
+html { width: 100%; height:100%; overflow:hidden; }
+
+body {
+	width: 100%;
+	height:100%;
+	font-family: 'Open Sans', sans-serif;
+	background: #092756;
+	background: -moz-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%),-moz-linear-gradient(top,  rgba(57,173,219,.25) 0%, rgba(42,60,87,.4) 100%), -moz-linear-gradient(-45deg,  #670d10 0%, #092756 100%);
+	background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -webkit-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -webkit-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+	background: -o-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -o-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -o-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+	background: -ms-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -ms-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -ms-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+	background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), linear-gradient(to bottom,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), linear-gradient(135deg,  #670d10 0%,#092756 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3E1D6D', endColorstr='#092756',GradientType=1 );
+}
+#loginBox,#welcomeBox{
+    position: absolute;
+  	top: 50%;
+  	left: 50%;
+  	margin: -150px 0 0 -150px;
+  	width:300px;
+  	height:300px;
+  }
+
+#loginBox h1{ color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
+#welcomeBox h1 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; }
+input {
+	width: 100%;
+	margin-bottom: 10px;
+	background: rgba(0,0,0,0.3);
+	border: none;
+	outline: none;
+	padding: 10px;
+	font-size: 13px;
+	color: #fff;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+	border: 1px solid rgba(0,0,0,0.3);
+	border-radius: 4px;
+	box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+	-webkit-transition: box-shadow .5s ease;
+	-moz-transition: box-shadow .5s ease;
+	-o-transition: box-shadow .5s ease;
+	-ms-transition: box-shadow .5s ease;
+	transition: box-shadow .5s ease;
+}
+#loader {
+  position: absolute;
+  top: 40%;
+  left: 45%;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
